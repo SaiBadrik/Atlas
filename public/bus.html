@@ -1,0 +1,1307 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Bus Routes - Hong Kong Tourism App</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      :root {
+        --primary: #2463eb;
+        --secondary: #0ea5a4;
+        --bg: #f4f6fb;
+        --card: #ffffff;
+        --muted: #6b7280;
+        --accent: #0ea5a4;
+        --danger: #ef4444;
+        --soon: #fff7ed;
+        --soon-border: #ffedd5;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      html, body {
+        height: 100%;
+        margin: 0;
+      }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+        background: var(--bg);
+        color: #0f172a;
+        padding: 24px;
+      }
+
+      .header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 30px;
+        padding-bottom: 20px;
+        border-bottom: 2px solid #e6eef8;
+      }
+
+      .header-left {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+      }
+
+      .header-icon {
+        font-size: 32px;
+        color: var(--secondary);
+      }
+
+      .header-title {
+        display: flex;
+        flex-direction: column;
+      }
+
+      .header-title h1 {
+        font-size: 24px;
+        font-weight: 700;
+        margin: 0;
+      }
+
+      .header-title .subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 4px;
+      }
+
+      .header-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #f0f4f9;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--primary);
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+      }
+
+      .header-link:hover {
+        background: var(--primary);
+        color: white;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .card {
+        background: var(--card);
+        border-radius: 10px;
+        padding: 20px;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+      }
+
+      form .row {
+        display: flex;
+        gap: 12px;
+        align-items: end;
+        flex-wrap: wrap;
+      }
+
+      label {
+        font-size: 12px;
+        color: var(--muted);
+        display: block;
+        margin-bottom: 6px;
+        font-weight: 600;
+      }
+
+      select, input {
+        padding: 10px 12px;
+        border: 1px solid #e6eef8;
+        border-radius: 6px;
+        background: linear-gradient(180deg, #fff, #fbfdff);
+        min-width: 160px;
+        font-size: 14px;
+        font-family: inherit;
+      }
+
+      button {
+        background: linear-gradient(135deg, var(--secondary), #0d8a8a);
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 14px;
+        transition: all 0.3s ease;
+      }
+
+      button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(14, 165, 164, 0.3);
+      }
+
+      button:active {
+        transform: translateY(0);
+      }
+
+      #meta {
+        font-family: 'Monaco', 'Courier New', monospace;
+        white-space: pre-wrap;
+        color: #0b1220;
+        font-size: 13px;
+        background: #f9fafb;
+        padding: 16px;
+        border-radius: 8px;
+        line-height: 1.5;
+      }
+
+      .results {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 18px;
+      }
+
+      .results h3 {
+        margin: 0 0 12px;
+        font-size: 16px;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+
+      th, td {
+        border: 1px solid #eef2f7;
+        padding: 10px;
+        text-align: left;
+      }
+
+      th {
+        background: #fafcff;
+        color: #0b1220;
+        font-weight: 600;
+      }
+
+      tr:nth-child(even) td {
+        background: #fbfdff;
+      }
+
+      tr.soon td {
+        background: var(--soon);
+        border: 1px solid var(--soon-border);
+      }
+
+      .small {
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .status-badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 12px;
+      }
+
+      .status-active {
+        background: #d1f0eb;
+        color: #067857;
+      }
+
+      .error-message {
+        background: #fef2f2;
+        color: #991b1b;
+        padding: 12px;
+        border-radius: 6px;
+        border-left: 4px solid var(--danger);
+        margin-top: 8px;
+      }
+
+      .loading {
+        text-align: center;
+        padding: 24px;
+        color: var(--muted);
+      }
+
+      .spinner {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        border: 3px solid #e6eef8;
+        border-top-color: var(--secondary);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+      }
+
+      .autocomplete-wrapper {
+        position: relative;
+        width: 100%;
+      }
+
+      .route-dropdown {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: var(--card);
+        border: 1px solid #e6eef8;
+        border-top: none;
+        border-radius: 0 0 6px 6px;
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 1000;
+        display: none;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      }
+
+      .route-dropdown.show {
+        display: block;
+      }
+
+      .route-option {
+        padding: 10px 12px;
+        cursor: pointer;
+        border-bottom: 1px solid #f0f4f9;
+        transition: background 0.2s ease;
+        font-size: 14px;
+      }
+
+      .route-option:hover {
+        background: #f0f4f9;
+      }
+
+      .route-option.selected {
+        background: #eef2ff;
+        color: var(--primary);
+        font-weight: 600;
+      }
+
+      .route-option:last-child {
+        border-bottom: none;
+      }
+
+      .route-option-code {
+        font-weight: 600;
+        color: var(--primary);
+      }
+
+      .route-option-details {
+        font-size: 12px;
+        color: var(--muted);
+        margin-left: 4px;
+      }
+
+      .selector-button {
+        padding: 6px 12px;
+        border: 2px solid #cffafe;
+        background: #f0fdfd;
+        color: #0d9488;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+      }
+
+      .selector-button:hover {
+        background: #ccfbf1;
+        border-color: #0ea5a4;
+      }
+
+      .selector-button.active {
+        background: #0ea5a4;
+        color: white;
+        border-color: #0ea5a4;
+      }
+
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+
+      @media (max-width: 800px) {
+        .results {
+          grid-template-columns: 1fr;
+        }
+
+        .row {
+          flex-direction: column;
+          align-items: stretch;
+        }
+
+        select, input {
+          width: 100%;
+        }
+
+        .header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 12px;
+        }
+
+        th, td {
+          padding: 8px;
+          font-size: 12px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-left">
+        <div class="header-icon">
+          <i class="fas fa-bus"></i>
+        </div>
+        <div class="header-title">
+          <h1>Bus Routes & Arrivals</h1>
+          <div class="subtitle">Real-time bus tracking across Hong Kong operators</div>
+        </div>
+      </div>
+      <div style="display: flex; gap: 12px; align-items: center;">
+        <select id="language" style="padding: 8px 12px; border: 1px solid #e6eef8; border-radius: 6px; background: white; color: #0f172a; font-weight: 600; cursor: pointer;">
+          <option value="EN">English (EN)</option>
+          <option value="TC">中文 (TC)</option>
+        </select>
+        <a href="/" class="header-link">
+          <i class="fas fa-home"></i> Back to Home
+        </a>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="card">
+        <form id="form">
+          <div class="row">
+            <div>
+              <label for="operator">Operator</label>
+              <select id="operator" name="operator" required>
+                <option value="">Select Operator</option>
+                <option value="KMB">KMB (Kowloon Motor Bus)</option>
+                <option value="CTB">CTB (Citybus)</option>
+                <option value="NWFB">NWFB (New World First Bus)</option>
+              </select>
+            </div>
+            <div class="autocomplete-wrapper">
+              <label for="route">Bus Route</label>
+              <input type="text" id="route" name="route" placeholder="Type to search routes..." autocomplete="off" required />
+              <div id="routeDropdown" class="route-dropdown"></div>
+            </div>
+          </div>
+          <div id="routeDetailsSection" style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;">
+            <!-- Direction Selector -->
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Direction</div>
+              <div id="directionButtonsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+            <!-- Service Type Selector -->
+            <div style="margin-bottom: 12px;">
+              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Service Type</div>
+              <div id="serviceTypeButtonsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
+            </div>
+            <!-- Route Info (Origin - Destination) -->
+            <div style="padding: 8px 0; border-top: 1px solid rgba(15, 23, 42, 0.1);">
+              <div style="font-size: 12px; color: #0f172a; font-weight: 500;">
+                <span id="routeOrigin"></span> <span style="color: #0ea5a4; font-weight: 600;">→</span> <span id="routeDestination"></span>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div>
+              <label for="stop">Stop</label>
+              <select id="stop" name="stop">
+                <option value="">Select a stop (load route first)</option>
+              </select>
+            </div>
+          </div>
+          
+          <!-- Current Selection Display -->
+          <div id="currentSelectionBox" style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #dbeafe 0%, #dcfce7 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;">
+            <div style="font-size: 11px; color: #0d7377; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><strong>Current Selection</strong></div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
+              <div><span style="color: #6b7280;">Operator:</span> <strong id="selOp">—</strong></div>
+              <div><span style="color: #6b7280;">Route:</span> <strong id="selRoute">—</strong></div>
+              <div><span style="color: #6b7280;">Direction:</span> <strong id="selDir">—</strong></div>
+              <div><span style="color: #6b7280;">Service Type:</span> <strong id="selSvc">—</strong></div>
+              <div><span style="color: #6b7280;">Stop:</span> <strong id="selStop">—</strong></div>
+            </div>
+          </div>
+          
+          <div style="margin-top: 16px;">
+            <button id="getBtn" type="submit">
+              <i class="fas fa-search"></i> Query Bus Data
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div id="meta" class="card" style="display: none;"></div>
+
+      <div id="debug" class="card" style="display: none; background: #fef3c7; border-left: 4px solid #f59e0b; margin-top: 10px;">
+        <h3 style="color: #92400e; margin-top: 0;">
+          <i class="fas fa-bug"></i> Debug Info
+        </h3>
+        <div style="background: #fef9e7; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; word-break: break-all;">
+          <div style="margin-bottom: 8px;">
+            <strong>API URL:</strong><br/>
+            <span id="debugUrl" style="color: #d97706; font-weight: 600;"></span>
+          </div>
+          <div style="margin-bottom: 8px;">
+            <strong>Parameters:</strong><br/>
+            <span id="debugParams" style="color: #059669;"></span>
+          </div>
+          <div>
+            <strong>Status:</strong> <span id="debugStatus" style="color: #0891b2;"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="results">
+        <div class="card">
+          <h3 id="resultHeader">
+            <i class="fas fa-info-circle"></i> <span id="resultTitle">Results</span>
+          </h3>
+          <div id="resultContainer" class="small">(no data)</div>
+        </div>
+      </div>
+
+      <div id="raw" class="card small" style="display: none; margin-top: 6px; white-space: pre-wrap; font-family: monospace;"></div>
+    </div>
+
+    <script>
+      const form = document.getElementById('form');
+      const operatorSel = document.getElementById('operator');
+      const routeInput = document.getElementById('route');
+      const routeDropdown = document.getElementById('routeDropdown');
+      const stopInput = document.getElementById('stop');
+      const languageSel = document.getElementById('language');
+
+      let allRoutes = {};
+      let routeStopsMap = {}; // Cache for route -> stops mapping
+      let currentLanguage = 'EN'; // Default language
+      let currentOperator = '';
+      let currentRoute = '';
+      let currentDirection = ''; // Track selected direction (inbound/outbound)
+      let currentServiceType = ''; // Track selected service type (1/2/3)
+
+      // Map operator names to etabus API codes
+      const operatorApiMap = {
+        'KMB': 'kmb',
+        'CTB': 'ctb',
+        'NWFB': 'nwfb'
+      };
+
+      // Update current selection display
+      function updateSelectionDisplay() {
+        const operator = operatorSel.value;
+        const route = routeInput.value.trim();
+        const stop = stopInput.value.trim();
+        const stopLabel = document.querySelector(`#stop option[value="${stop}"]`)?.textContent || stop;
+        
+        document.getElementById('selOp').textContent = operator || '—';
+        document.getElementById('selRoute').textContent = route || '—';
+        document.getElementById('selDir').textContent = currentDirection || '—';
+        document.getElementById('selSvc').textContent = currentServiceType || '—';
+        document.getElementById('selStop').textContent = stopLabel || '—';
+        
+        const selBox = document.getElementById('currentSelectionBox');
+        if (operator && route && currentDirection && currentServiceType && stop) {
+          selBox.style.display = 'block';
+        } else {
+          selBox.style.display = 'none';
+        }
+      }
+
+      // Format route label with code, origin, and destination
+      function formatRouteLabel(route, lang = 'EN') {
+        const code = route.route || route.code || '';
+        
+        let origin = '';
+        let dest = '';
+        
+        if (lang === 'TC') {
+          origin = route.orig_tc || route.orig_en || '';
+          dest = route.dest_tc || route.dest_en || '';
+        } else {
+          origin = route.orig_en || '';
+          dest = route.dest_en || '';
+        }
+        
+        // Format: <code> <origin> - <destination>
+        if (origin && dest) {
+          return `${code} ${origin} - ${dest}`;
+        } else if (dest) {
+          return `${code} ${dest}`;
+        } else if (origin) {
+          return `${code} ${origin}`;
+        } else {
+          return code;
+        }
+      }
+
+      // Show filtered routes in dropdown
+      function showRouteOptions(query = '') {
+        console.log('showRouteOptions called with query:', query, 'currentOperator:', currentOperator, 'allRoutes[currentOperator]:', allRoutes[currentOperator]);
+        if (!currentOperator || !allRoutes[currentOperator]) {
+          routeDropdown.classList.remove('show');
+          return;
+        }
+
+        const routes = allRoutes[currentOperator];
+        const queryUpper = query.toUpperCase();
+        
+        let filtered = routes;
+        if (query) {
+          filtered = routes.filter(route => {
+            const code = (route.route || route.code || '').toUpperCase();
+            const orig = (route.orig_en || '').toUpperCase();
+            const dest = (route.dest_en || '').toUpperCase();
+            return code.includes(queryUpper) || orig.includes(queryUpper) || dest.includes(queryUpper);
+          });
+        }
+
+        if (filtered.length === 0) {
+          routeDropdown.innerHTML = `<div class="route-option" style="color: #6b7280; cursor: default;">No routes found</div>`;
+          routeDropdown.classList.add('show');
+          return;
+        }
+
+        // Show max 15 results (more when showing all), limit to 25 for initial display
+        const maxDisplay = query ? 10 : Math.min(filtered.length, 25);
+        const displayed = filtered.slice(0, maxDisplay);
+        
+        let html = displayed.map(route => {
+          const code = route.route || route.code || '';
+          const label = formatRouteLabel(route, currentLanguage);
+          return `<div class="route-option" data-route="${code}">
+                    <span class="route-option-code">${code}</span>
+                    <span class="route-option-details">${label.substring(code.length + 1)}</span>
+                  </div>`;
+        }).join('');
+        
+        // Add "show more" indicator if there are more results
+        if (!query && filtered.length > maxDisplay) {
+          html += `<div class="route-option" style="color: #6b7280; cursor: default; text-align: center; padding: 8px; font-size: 12px; border-top: 1px solid #e5e7eb;">... and ${filtered.length - maxDisplay} more routes</div>`;
+        }
+        
+        routeDropdown.innerHTML = html;
+
+        // Add click handlers
+        document.querySelectorAll('.route-option[data-route]').forEach(option => {
+          option.addEventListener('click', () => {
+            const route = option.getAttribute('data-route');
+            routeInput.value = route;
+            currentRoute = route;
+            routeDropdown.classList.remove('show');
+            
+            // Show available directions and service types for this route and auto-select
+            showRouteInfo(route);
+            
+            // Load stops with the auto-selected direction and service type
+            const stopSelect = document.getElementById('stop');
+            stopSelect.innerHTML = '<option value="">Loading stops...</option>';
+            loadStopsForRouteAndDirection(route, currentDirection, currentServiceType);
+          });
+        });
+
+        routeDropdown.classList.add('show');
+      }
+
+      // Display and allow selection of direction and service type for selected route
+      function showRouteInfo(route) {
+        const operator = operatorSel.value;
+        if (!operator || !allRoutes[operator]) return;
+
+        // Get all entries for this route
+        const routeEntries = allRoutes[operator].filter(r => (r.route || r.code || '').toUpperCase() === route.toUpperCase());
+        
+        if (routeEntries.length === 0) {
+          document.getElementById('routeDetailsSection').style.display = 'none';
+          return;
+        }
+
+        // Build maps of directions and service types with their entries
+        const directionMap = new Map(); // 'Inbound'/'Outbound' -> entries
+        const serviceTypeMap = new Map(); // '1'/'2'/'3' -> entries
+
+        routeEntries.forEach(entry => {
+          const bound = entry.bound || '';
+          const serviceType = entry.service_type || '';
+          const dirName = bound === 'I' ? 'Inbound' : bound === 'O' ? 'Outbound' : '';
+          
+          if (dirName) {
+            if (!directionMap.has(dirName)) {
+              directionMap.set(dirName, []);
+            }
+            directionMap.get(dirName).push(entry);
+          }
+
+          if (!serviceTypeMap.has(serviceType)) {
+            serviceTypeMap.set(serviceType, []);
+          }
+          serviceTypeMap.get(serviceType).push(entry);
+        });
+
+        // Auto-select default direction (prefer Inbound)
+        let defaultDirection = Array.from(directionMap.keys()).includes('Inbound') ? 'Inbound' : Array.from(directionMap.keys())[0];
+        let defaultServiceType = Array.from(serviceTypeMap.keys()).sort()[0];
+
+        // Set initial values
+        if (!currentDirection) currentDirection = defaultDirection.toLowerCase();
+        if (!currentServiceType) currentServiceType = defaultServiceType;
+
+        // Create direction buttons
+        const directionButtonsContainer = document.getElementById('directionButtonsContainer');
+        directionButtonsContainer.innerHTML = '';
+        
+        Array.from(directionMap.keys()).sort().forEach(direction => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `selector-button ${currentDirection === direction.toLowerCase() ? 'active' : ''}`;
+          button.textContent = direction;
+          button.style.cursor = 'pointer';
+          
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentDirection = direction.toLowerCase();
+            updateRouteDisplay(route, routeEntries);
+            updateSelectionDisplay();
+            reloadStops(route);
+          });
+          
+          directionButtonsContainer.appendChild(button);
+        });
+
+        // Create service type buttons
+        const serviceTypeButtonsContainer = document.getElementById('serviceTypeButtonsContainer');
+        serviceTypeButtonsContainer.innerHTML = '';
+        
+        Array.from(serviceTypeMap.keys()).sort().forEach(serviceType => {
+          const button = document.createElement('button');
+          button.type = 'button';
+          button.className = `selector-button ${currentServiceType === serviceType ? 'active' : ''}`;
+          button.textContent = `Type ${serviceType}`;
+          button.style.cursor = 'pointer';
+          
+          button.addEventListener('click', (e) => {
+            e.preventDefault();
+            currentServiceType = serviceType;
+            updateRouteDisplay(route, routeEntries);
+            updateSelectionDisplay();
+            reloadStops(route);
+          });
+          
+          serviceTypeButtonsContainer.appendChild(button);
+        });
+
+        // Display initial route info
+        updateRouteDisplay(route, routeEntries);
+        document.getElementById('routeDetailsSection').style.display = 'block';
+      }
+
+      // Update the origin/destination display and re-highlight buttons
+      function updateRouteDisplay(route, routeEntries) {
+        // Find entry matching current selection
+        let selectedEntry = routeEntries.find(e => 
+          (e.bound === (currentDirection === 'inbound' ? 'I' : 'O')) && 
+          e.service_type === currentServiceType
+        );
+        
+        if (!selectedEntry) {
+          selectedEntry = routeEntries[0];
+        }
+
+        // Get origin and destination
+        const origin = currentLanguage === 'TC' ? selectedEntry.orig_tc || selectedEntry.orig_en : selectedEntry.orig_en || '';
+        const dest = currentLanguage === 'TC' ? selectedEntry.dest_tc || selectedEntry.dest_en : selectedEntry.dest_en || '';
+
+        // Update route info display
+        document.getElementById('routeOrigin').textContent = origin;
+        document.getElementById('routeDestination').textContent = dest;
+
+        // Update button active states
+        document.querySelectorAll('.selector-button').forEach(button => {
+          const isDirection = button.textContent === 'Inbound' || button.textContent === 'Outbound';
+          
+          if (isDirection) {
+            const isActive = (button.textContent === 'Inbound' && currentDirection === 'inbound') ||
+                           (button.textContent === 'Outbound' && currentDirection === 'outbound');
+            button.classList.toggle('active', isActive);
+          } else {
+            const buttonServiceType = button.textContent.replace('Type ', '');
+            button.classList.toggle('active', buttonServiceType === currentServiceType);
+          }
+        });
+      }
+
+      // Reload stops for current selection
+      function reloadStops(route) {
+        const stopSelect = document.getElementById('stop');
+        stopSelect.innerHTML = '<option value="">Loading stops...</option>';
+        loadStopsForRouteAndDirection(route, currentDirection, currentServiceType);
+      }
+
+      // Fetch all routes for operator on operator change
+      operatorSel.addEventListener('change', async (e) => {
+        console.log('Operator changed to:', e.target.value);
+        const operator = e.target.value;
+        currentOperator = operator;
+        
+        // Reset fields
+        routeInput.value = '';
+        stopInput.innerHTML = '<option value="">Select a stop (select route first)</option>';
+        routeDropdown.innerHTML = '';
+        routeDropdown.classList.remove('show');
+        document.getElementById('routeDetailsSection').style.display = 'none';
+        currentDirection = '';
+        currentServiceType = '';
+        updateSelectionDisplay();
+
+        if (!operator) return;
+
+        try {
+          const apiOperator = operatorApiMap[operator];
+          const apiUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/route/`;
+          
+          const response = await fetch(apiUrl, { timeout: 10000 });
+          if (!response.ok) {
+            throw new Error(`API returned ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          if (data.data && Array.isArray(data.data)) {
+            allRoutes[operator] = data.data;
+            console.log(`Loaded ${data.data.length} routes for ${operator}`);
+          }
+        } catch (err) {
+          console.error('Failed to load routes for operator', err);
+          alert('Failed to load routes. Please try again.');
+        }
+      });
+
+      // Handle language change
+      languageSel.addEventListener('change', (e) => {
+        currentLanguage = e.target.value;
+        
+        // Update current selection display with new language
+        updateSelectionDisplay();
+        
+        // Update route display if route is selected
+        if (currentRoute && currentOperator && allRoutes[currentOperator]) {
+          const routeEntries = allRoutes[currentOperator].filter(r => (r.route || r.code || '').toUpperCase() === currentRoute.toUpperCase());
+          if (routeEntries.length > 0) {
+            updateRouteDisplay(currentRoute, routeEntries);
+          }
+        }
+        
+        // Update stop names if stops are displayed
+        if (stopInput.children.length > 1) {
+          updateStopNames();
+        }
+        
+        // Re-render results with new language if they exist
+        const resultContainer = document.getElementById('resultContainer');
+        if (resultContainer && resultContainer.innerHTML && !resultContainer.innerHTML.includes('Loading') && !resultContainer.innerHTML.includes('No arrivals')) {
+          // Store the last ETA data to re-render with new language
+          const lastData = window.lastETAData;
+          if (lastData) {
+            const headerText = document.getElementById('resultTitle')?.textContent || 'Results';
+            renderETAResults(lastData, headerText);
+          }
+        }
+      });
+
+      // Update stop names with new language
+      async function updateStopNames() {
+        const stopSelect = document.getElementById('stop');
+        const operator = operatorSel.value;
+        
+        // Get all stop options except the first one
+        const options = Array.from(stopSelect.options).slice(1);
+        
+        for (let option of options) {
+          const stopId = option.value;
+          try {
+            const response = await fetch(`/api/bus/stop?stop_id=${encodeURIComponent(stopId)}&operator=${encodeURIComponent(operator)}`);
+            const stopData = await response.json();
+            
+            if (stopData.data) {
+              let stopName = '';
+              stopName = currentLanguage === 'TC' ? stopData.data.name_tc || stopData.data.name_en : stopData.data.name_en || stopData.data.name_tc;
+              
+              // Get index
+              const idx = Array.from(stopSelect.options).indexOf(option);
+              option.textContent = `${idx}. ${stopId}${stopName ? ' — ' + stopName : ''}`;
+            }
+          } catch (err) {
+            console.error(`Failed to fetch details for stop ${stopId}:`, err);
+          }
+        }
+      }
+
+      // Handle route input - show dropdown and filter
+      routeInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim();
+        showRouteOptions(query);
+      });
+
+      // Handle route input focus - show all options
+      routeInput.addEventListener('focus', (e) => {
+        if (currentOperator && allRoutes[currentOperator]) {
+          showRouteOptions('');
+        }
+      });
+
+      // Handle Enter key
+      routeInput.addEventListener('keydown', async (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          const route = routeInput.value.trim().toUpperCase();
+          
+          if (!route) {
+            alert('Please select or type a bus route number');
+            return;
+          }
+
+          currentRoute = route;
+          routeDropdown.classList.remove('show');
+          
+          // Show available directions and service types for this route and auto-select
+          showRouteInfo(route);
+          
+          // Load stops with the auto-selected direction and service type
+          const stopSelect = document.getElementById('stop');
+          stopSelect.innerHTML = '<option value="">Loading stops...</option>';
+          await loadStopsForRouteAndDirection(route, currentDirection, currentServiceType);
+        }
+      });
+
+      // Handle stop change - trigger API call
+      stopInput.addEventListener('change', (e) => {
+        updateSelectionDisplay();
+        if (e.target.value && currentRoute) {
+          form.dispatchEvent(new Event('submit'));
+        }
+      });
+
+      // Close dropdown when clicking outside
+      document.addEventListener('click', (e) => {
+        if (!e.target.closest('.autocomplete-wrapper')) {
+          routeDropdown.classList.remove('show');
+        }
+      });
+
+      async function loadStopsForRouteAndDirection(route, direction, serviceType) {
+        const operator = operatorSel.value;
+        const stopSelect = document.getElementById('stop');
+        const debugDiv = document.getElementById('debug');
+        const debugUrl = document.getElementById('debugUrl');
+        const debugStatus = document.getElementById('debugStatus');
+
+        if (!operator) {
+          alert('Please select an operator first');
+          stopSelect.innerHTML = '<option value="">Select a stop (select operator first)</option>';
+          return;
+        }
+
+        if (!route) {
+          stopSelect.innerHTML = '<option value="">Select a stop (enter route first)</option>';
+          return;
+        }
+
+        try {
+          // Check cache first
+          const cacheKey = `${operator}-${route}-${direction}-${serviceType}`;
+          let stopsData;
+
+          if (routeStopsMap[cacheKey]) {
+            stopsData = routeStopsMap[cacheKey];
+          } else {
+            // Construct external API URL
+            const apiOperator = operatorApiMap[operator];
+            const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/route-stop/${encodeURIComponent(route)}/${direction}/${serviceType}`;
+            
+            // Construct proxy URL
+            const proxyUrl = `/api/bus/route-stop?route=${encodeURIComponent(route)}&operator=${encodeURIComponent(operator)}&direction=${encodeURIComponent(direction)}&service_type=${encodeURIComponent(serviceType)}`;
+            
+            // Display debug info
+            debugDiv.style.display = 'block';
+            debugUrl.innerHTML = `<strong>External API:</strong><br/>${externalUrl}<br/><br/><strong>Proxy URL:</strong><br/>${proxyUrl}`;
+            debugStatus.textContent = 'Loading...';
+            
+            const response = await fetch(proxyUrl);
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(`<strong>API Error:</strong> ${data.error || 'Failed to fetch stops'}<br/><strong>URL:</strong> <code>${externalUrl}</code>`);
+            }
+
+            if (data.data && Array.isArray(data.data)) {
+              stopsData = data.data;
+              if (stopsData.length === 0) {
+                throw new Error(`<strong>No stops found</strong> for route ${route} in ${direction} direction with service type ${serviceType}<br/><strong>URL:</strong> <code>${externalUrl}</code>`);
+              }
+              routeStopsMap[cacheKey] = stopsData;
+              debugStatus.textContent = `Success - ${stopsData.length} stops loaded`;
+            } else {
+              throw new Error(`<strong>No data returned from API</strong><br/><strong>URL:</strong> <code>${externalUrl}</code>`);
+            }
+          }
+
+          // Show stops in dropdown
+          if (stopsData && stopsData.length > 0) {
+            showStopsDialog(stopsData);
+          }
+        } catch (err) {
+          console.error('Failed to load stops for route:', err);
+          stopSelect.innerHTML = `<option value="">Error: Loading stops...</option>`;
+          const resultContainer = document.getElementById('resultContainer');
+          resultContainer.innerHTML = `<div class="error-message">${err.message}</div>`;
+          debugStatus.textContent = `Error: ${err.message.replace(/<[^>]*>/g, '')}`;
+        }
+      }
+
+      async function loadStopsForRoute(route) {
+        const operator = operatorSel.value;
+        const stopSelect = document.getElementById('stop');
+
+        if (!operator) {
+          alert('Please select an operator first');
+          stopSelect.innerHTML = '<option value="">Select a stop (select operator first)</option>';
+          return;
+        }
+
+        if (!route) {
+          stopSelect.innerHTML = '<option value="">Select a stop (enter route first)</option>';
+          return;
+        }
+
+        try {
+          // Check cache first
+          const cacheKey = `${operator}-${route}`;
+          let stops;
+
+          if (routeStopsMap[cacheKey]) {
+            stops = routeStopsMap[cacheKey];
+          } else {
+            // Fetch from API
+            const apiUrl = `/api/bus/route-detail?route=${encodeURIComponent(route)}&operator=${encodeURIComponent(operator)}`;
+            const response = await fetch(apiUrl);
+            const data = await response.json();
+
+            if (!response.ok) {
+              throw new Error(`<strong>API Error:</strong> ${data.error || `Route ${route} not found for ${operator}`}<br/><strong>URL:</strong> <code>${apiUrl}</code>`);
+            }
+
+            if (data.data) {
+              stops = Array.isArray(data.data) ? data.data : (data.data.stops || []);
+              if (!stops || stops.length === 0) {
+                throw new Error(`<strong>No stops found</strong> for route ${route}<br/><strong>URL:</strong> <code>${apiUrl}</code>`);
+              }
+              routeStopsMap[cacheKey] = stops;
+            } else {
+              throw new Error(`<strong>No data returned from API</strong><br/><strong>URL:</strong> <code>${apiUrl}</code>`);
+            }
+          }
+
+          // Show stops in dropdown
+          if (stops && stops.length > 0) {
+            showStopsDialog(stops);
+          }
+        } catch (err) {
+          console.error('Failed to load stops for route:', err);
+          stopSelect.innerHTML = `<option value="">Error: Loading stops...</option>`;
+          const resultContainer = document.getElementById('resultContainer');
+          resultContainer.innerHTML = `<div class="error-message">${err.message}</div>`;
+        }
+      }
+
+      async function showStopsDialog(stops) {
+        const stopSelect = document.getElementById('stop');
+        const operator = operatorSel.value;
+        
+        // Clear previous options except the first one
+        stopSelect.innerHTML = '<option value="">Select a stop</option>';
+        
+        // Fetch all stop details in parallel
+        try {
+          const stopDetailPromises = stops.map((stop, idx) => {
+            const stopId = stop.stop || stop.code || '';
+            return fetch(`/api/bus/stop?stop_id=${encodeURIComponent(stopId)}&operator=${encodeURIComponent(operator)}`)
+              .then(response => response.json())
+              .then(stopData => {
+                let stopName = '';
+                if (stopData.data && stopData.data.data) {
+                  // Get stop name based on current language selection
+                  // stopData.data.data contains the actual stop info (name_en, name_tc, etc)
+                  const stopInfo = stopData.data.data;
+                  stopName = currentLanguage === 'TC' ? stopInfo.name_tc || stopInfo.name_en : stopInfo.name_en || stopInfo.name_tc;
+                }
+                return { idx, stopId, stopName };
+              })
+              .catch(err => {
+                console.error(`Failed to fetch details for stop ${stopId}:`, err);
+                return { idx, stopId, stopName: stopId }; // Fallback to stop code if fetch fails
+              });
+          });
+          
+          const stopDetails = await Promise.all(stopDetailPromises);
+          
+          // Add all options with stop names
+          stopDetails.forEach(({ idx, stopId, stopName }) => {
+            const displayText = `${idx + 1}. ${stopName || stopId}`;
+            const option = document.createElement('option');
+            option.value = stopId;
+            option.textContent = displayText;
+            stopSelect.appendChild(option);
+          });
+        } catch (err) {
+          console.error('Failed to fetch stop details:', err);
+          // Fallback: add stops with codes only
+          stops.forEach((stop, idx) => {
+            const stopId = stop.stop || stop.code || '';
+            const option = document.createElement('option');
+            option.value = stopId;
+            option.textContent = `${idx + 1}. ${stopId}`;
+            stopSelect.appendChild(option);
+          });
+        }
+
+        // Close any open autocomplete dropdown if it exists
+        const routeDropdownElem = document.getElementById('routeDropdown');
+        if (routeDropdownElem) {
+          routeDropdownElem.classList.remove('show');
+        }
+      }
+
+      // Update form visibility based on query type
+      // (Removed: queryTypeSel no longer used)
+
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const operator = operatorSel.value;
+        const route = routeInput.value.trim();
+        const stop = stopInput.value.trim();
+
+        if (!operator) {
+          alert('Please select an operator');
+          return;
+        }
+
+        if (!route || !stop) {
+          alert('Route and Stop are required');
+          return;
+        }
+
+        if (!currentServiceType) {
+          alert('Service Type must be selected');
+          return;
+        }
+
+        const metaDiv = document.getElementById('meta');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultHeader = document.getElementById('resultHeader');
+        const rawDiv = document.getElementById('raw');
+        const debugDiv = document.getElementById('debug');
+        const debugUrl = document.getElementById('debugUrl');
+        const debugParams = document.getElementById('debugParams');
+        const debugStatus = document.getElementById('debugStatus');
+
+        // Show debug info first and scroll to it
+        debugDiv.style.display = 'block';
+        metaDiv.textContent = 'Loading...';
+        metaDiv.style.display = 'block';
+        resultContainer.innerHTML = '<div class="loading"><div class="spinner"></div> Fetching data...</div>';
+        rawDiv.style.display = 'none';
+        
+        // Scroll to debug info so user can see the API call
+        setTimeout(() => {
+          debugDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 50);
+
+        try {
+          const apiOperator = operatorApiMap[operator];
+          const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/eta/${encodeURIComponent(stop)}/${encodeURIComponent(route)}/${encodeURIComponent(currentServiceType)}`;
+          const url = `/api/bus/eta?stop_id=${encodeURIComponent(stop)}&route=${encodeURIComponent(route)}&service_type=${encodeURIComponent(currentServiceType)}&operator=${encodeURIComponent(operator)}`;
+          const headerText = `ETA for Route ${route} at Stop ${stop} (Service Type ${currentServiceType})`;
+          const params = { stop_id: stop, route, service_type: currentServiceType, operator };
+
+          // Display debug info with clickable API links
+          debugUrl.innerHTML = `
+            <div hidden style="margin-bottom: 12px;">
+              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API</strong></div>
+              <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #0369a1;">
+                <a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none;">
+                  ${externalUrl}
+                </a>
+                <span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline;">open</a>)</span>
+              </div>
+            </div>
+            <div>
+              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>Proxy URL</strong></div>
+              <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #10b981;">
+                ${window.location.origin}${url}
+              </div>
+            </div>
+          `;
+          debugParams.innerHTML = `<strong>Parameters:</strong><br/><pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(params, null, 2)}</pre>`;
+          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #f59e0b;">Calling API...</span>`;
+
+          const response = await fetch(url);
+          const data = await response.json();
+
+          // Update debug status with response details
+          const itemCount = data.data ? data.data.length : 0;
+          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #10b981;">${response.status} ${response.statusText}</span> - <strong>${itemCount}</strong> ${itemCount === 1 ? 'item' : 'items'} received`;
+
+          if (!response.ok) {
+            resultContainer.innerHTML = `<div class="error-message"><strong>Error:</strong> ${data.error || 'Failed to fetch data'}</div>`;
+            metaDiv.textContent = JSON.stringify(data, null, 2);
+            return;
+          }
+
+          // Store data for re-rendering when language changes
+          window.lastETAData = data;
+          renderETAResults(data, headerText);
+          
+          // Scroll to results after data is rendered
+          setTimeout(() => {
+            resultContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } catch (err) {
+          resultContainer.innerHTML = `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
+          metaDiv.textContent = err.message;
+          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #dc2626;">Error: ${err.message}</span>`;
+        }
+      });
+
+      function renderETAResults(json, headerText) {
+        const metaDiv = document.getElementById('meta');
+        const resultContainer = document.getElementById('resultContainer');
+        const resultHeader = document.getElementById('resultHeader');
+        const rawDiv = document.getElementById('raw');
+
+        // Update header
+        document.getElementById('resultTitle').textContent = headerText;
+
+        // Show metadata
+        metaDiv.textContent = `Timestamp: ${json.meta?.proxiedAt || 'N/A'}`;
+
+        // ETABus API returns data structure with nested data array
+        let etaArray = [];
+        if (json.data && json.data.data && Array.isArray(json.data.data)) {
+          etaArray = json.data.data;
+        } else if (Array.isArray(json.data)) {
+          // Fallback for if data is directly an array
+          etaArray = json.data;
+        }
+
+        // Check if we have data
+        if (!etaArray || etaArray.length === 0) {
+          resultContainer.innerHTML = '<div style="padding: 16px; background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; color: #991b1b;"><strong>No arrivals scheduled</strong></div>';
+          rawDiv.innerHTML = JSON.stringify(json, null, 2);
+          rawDiv.style.display = 'block';
+          return;
+        }
+
+        // Build ETA grid table
+        let html = '<div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-left: 4px solid #0ea5a4; border-radius: 6px;">';
+        html += '<div style="font-size: 11px; color: #0d7377; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API Called</strong></div>';
+        if (json.meta?.requested) {
+          const stop = json.meta.requested.stop_id;
+          const route = json.meta.requested.route;
+          const serviceType = json.meta.requested.service_type;
+          const operator = json.meta.requested.operator;
+          const apiOperator = operatorApiMap[operator];
+          const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/eta/${stop}/${route}/${serviceType}`;
+          html += `<div style="font-family: monospace; font-size: 12px; background: white; padding: 8px; border-radius: 4px; word-break: break-all; color: #0369a1;">`;
+          html += `<a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none; cursor: pointer;">`;
+          html += `${externalUrl}`;
+          html += `</a>`;
+          html += `<span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline; cursor: pointer;">open</a>)</span>`;
+          html += `</div>`;
+        }
+        html += '</div>';
+
+        html += '<table style="width: 100%; border-collapse: collapse;">';
+        html += '<thead style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">';
+        html += '<tr>';
+        html += '<th style="text-align: left; padding: 12px; border: 1px solid #e5e7eb;">Bus #</th>';
+        html += '<th style="text-align: left; padding: 12px; border: 1px solid #e5e7eb;">Destination</th>';
+        html += '<th style="text-align: center; padding: 12px; border: 1px solid #e5e7eb;">Sequence</th>';
+        html += '<th style="text-align: left; padding: 12px; border: 1px solid #e5e7eb;">ETA Time</th>';
+        html += '<th style="text-align: left; padding: 12px; border: 1px solid #e5e7eb;">Remarks</th>';
+        html += '<th style="text-align: center; padding: 12px; border: 1px solid #e5e7eb;">Minutes Away</th>';
+        html += '</tr>';
+        html += '</thead>';
+        html += '<tbody>';
+
+        etaArray.forEach((item, idx) => {
+          const route = item.route || '-';
+          const dest = currentLanguage === 'TC' ? (item.dest_tc || item.dest_en || '-') : (item.dest_en || item.dest_tc || '-');
+          const sequence = item.eta_seq || idx + 1;
+          const remarks = currentLanguage === 'TC' ? (item.rmk_tc || item.rmk_en || '-') : (item.rmk_en || item.rmk_tc || '-');
+          
+          let etaTime = 'N/A';
+          let minutesAway = 'N/A';
+          
+          if (item.eta) {
+            try {
+              const etaDate = new Date(item.eta);
+              etaTime = etaDate.toLocaleTimeString('en-HK', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+              minutesAway = Math.ceil((etaDate - new Date()) / 60000);
+            } catch (e) {
+              console.error('Error parsing ETA:', e);
+            }
+          }
+
+          const rowColor = idx % 2 === 0 ? '#ffffff' : '#f9fafb';
+          html += `<tr style="background: ${rowColor}; border-bottom: 1px solid #e5e7eb;">`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb;"><strong>${route}</strong></td>`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb; color: #1f2937;">${dest}</td>`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb; text-align: center; color: #6b7280;">${sequence}</td>`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb; font-weight: 500;">${etaTime}</td>`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb; color: #6b7280; font-size: 12px;">${remarks}</td>`;
+          html += `<td style="padding: 12px; border: 1px solid #e5e7eb; text-align: center; font-weight: 600;">`;
+          if (typeof minutesAway === 'number') {
+            if (minutesAway <= 0) {
+              html += '<span style="background: #fecaca; color: #dc2626; padding: 4px 8px; border-radius: 4px;">Now</span>';
+            } else if (minutesAway < 5) {
+              html += `<span style="background: #fee2e2; color: #dc2626; padding: 4px 8px; border-radius: 4px;">${minutesAway}m</span>`;
+            } else if (minutesAway < 10) {
+              html += `<span style="background: #fef3c7; color: #92400e; padding: 4px 8px; border-radius: 4px;">${minutesAway}m</span>`;
+            } else {
+              html += `<span style="background: #dcfce7; color: #16a34a; padding: 4px 8px; border-radius: 4px;">${minutesAway}m</span>`;
+            }
+          } else {
+            html += 'N/A';
+          }
+          html += '</td>';
+          html += '</tr>';
+        });
+
+        html += '</tbody>';
+        html += '</table>';
+
+        resultContainer.innerHTML = html;
+        rawDiv.innerHTML = JSON.stringify(json.data, null, 2);
+        rawDiv.style.display = 'block';
+      }
+    </script>
+  </body>
+</html>

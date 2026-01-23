@@ -1,0 +1,501 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Hong Kong Tourism — MTR Schedule Module</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    <style>
+      :root{
+        --bg:#f4f6fb; --card:#ffffff; --muted:#6b7280; --accent:#2463eb; --accent-2:#0ea5a4;
+        --danger:#ef4444; --soon:#fff7ed; --soon-border:#ffedd5;
+      }
+      html,body{height:100%;margin:0}
+      body { font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; background:var(--bg); color:#0f172a; padding:24px; }
+      .container{max-width:1100px;margin:0 auto;display:grid;grid-template-columns:1fr;gap:18px}
+      header{display:flex;align-items:center;justify-content:space-between}
+        .appTitle{font-weight:700;font-size:16px;color:#07103a}
+      h1{font-size:20px;margin:0 0 6px}
+      /* meta summary styles */
+      .metaRow{display:flex;gap:12px;align-items:flex-start;margin-bottom:6px}
+      .metaLabel{width:140px;color:var(--muted);font-weight:700}
+      .metaValue{flex:1}
+      .card{background:var(--card);border-radius:10px;padding:16px;box-shadow:0 1px 2px rgba(15,23,42,0.04);}
+      form .row{display:flex;gap:12px;align-items:end;flex-wrap:wrap}
+      label{font-size:12px;color:var(--muted);display:block;margin-bottom:6px}
+      select,input{padding:8px 10px;border:1px solid #e6eef8;border-radius:6px;background:linear-gradient(180,#fff,#fbfdff);min-width:160px}
+      button{background:var(--accent);color:white;border:none;padding:10px 14px;border-radius:8px;cursor:pointer;font-weight:600}
+      button:active{transform:translateY(1px)}
+      .flex{display:flex;gap:12px;align-items:center}
+      #meta{font-family:monospace;white-space:pre-wrap;color:#0b1220}
+      .results{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+      .results h3{margin:0 0 8px}
+      table{width:100%;border-collapse:collapse;font-size:14px}
+      th,td{border:1px solid #eef2f7;padding:8px;text-align:center}
+      th{background:#fafcff;color:#0b1220;font-weight:600}
+      tr:nth-child(even) td{background:#fbfdff}
+      tr.soon td{background:var(--soon);border:1px solid var(--soon-border)}
+      .small{font-size:12px;color:var(--muted)}
+      .header-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        background: #f0f4f9;
+        border-radius: 8px;
+        text-decoration: none;
+        color: var(--accent);
+        font-weight: 600;
+        font-size: 13px;
+        transition: all 0.3s ease;
+      }
+      .header-link:hover {
+        background: var(--accent);
+        color: white;
+      }
+      @media (max-width:800px){
+        .results{grid-template-columns:1fr}
+        .row{flex-direction:column;align-items:stretch}
+        select,input{width:100%}
+        header{flex-direction:column;align-items:flex-start;gap:12px}
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <div>
+          <h1 id="mainTitle">MTR Schedule Module (Demo)</h1>
+          <div id="subtitle" class="small">Choose a line and station to view upcoming trains</div>
+        </div>
+        <a href="/" class="header-link">
+          <i class="fas fa-home"></i> Home
+        </a>
+      </header>
+
+      <div class="card">
+        <form id="form">
+      <div class="row">
+        <div>
+          <label for="line">Line</label>
+          <select id="line" name="line"><option>Loading...</option></select>
+        </div>
+        <div>
+          <label for="sta">Station</label>
+          <select id="sta" name="sta"><option>Select a line first</option></select>
+        </div>
+        <div>
+          <label for="lang">Lang</label>
+          <select id="lang" name="lang">
+            <option value="EN">EN</option>
+            <option value="TC">TC</option>
+          </select>
+        </div>
+      </div>
+        <div style="margin-top:12px">
+          <button id="getBtn" type="submit">Get Schedule</button>
+        </div>
+        </form>
+      </div>
+
+      <div id="meta" class="card" style="font-family:monospace;margin-bottom:0"></div>
+
+      <div class="results">
+        <div class="card">
+          <h3 id="upHeader">UP</h3>
+          <div id="upContainer">(no data)</div>
+        </div>
+        <div class="card">
+          <h3 id="downHeader">DOWN</h3>
+          <div id="downContainer">(no data)</div>
+        </div>
+      </div>
+
+      <div id="raw" class="card small" style="display:none;margin-top:6px"></div>
+
+    </div>
+
+    <script>
+      const form = document.getElementById('form');
+      const result = document.getElementById('result');
+
+      // simple i18n strings (EN / Traditional Chinese)
+      const i18n = {
+        EN: {
+          appTitle: 'HK Vista: Atlas App',
+          title: 'MTR Schedule Module (Demo)',
+          subtitle: 'Choose a line and station to view upcoming trains',
+          getSchedule: 'Get Schedule',
+          lineLabel: 'Line',
+          stationLabel: 'Station',
+          langLabel: 'Lang',
+          fetching: 'Fetching...',
+          loading: '(loading...)',
+          noData: '(no data)',
+          noUpcoming: '(no upcoming trains)',
+          error: '(error)',
+          errorPrefix: 'Error:',
+          noScheduleCombination: '(no schedule for this line/station combination)',
+          colLabels: { seq: 'Seq', dest: 'Destination', plat: 'Platform', time: 'Time', ttnt: 'ETA (mins)' },
+          selectLineFirst: 'Select a line first',
+          noStations: 'No stations',
+          toPrefix: 'To '
+        },
+        TC: {
+          appTitle: '港景圖譜：Atlas 應用',
+          title: '港鐵時刻表模組（示範）',
+          subtitle: '選擇路綫和車站以查看即將到站的列車',
+          getSchedule: '查詢時刻表',
+          lineLabel: '路綫',
+          stationLabel: '車站',
+          langLabel: '語言',
+          fetching: '載入中...',
+          loading: '(載入中...)',
+          noData: '(沒有資料)',
+          noUpcoming: '(沒有即將到站的列車)',
+          error: '(錯誤)',
+          errorPrefix: '錯誤：',
+          noScheduleCombination: '(該路綫/車站組合沒有時刻表)',
+          colLabels: { seq: '序號', dest: '目的地', plat: '月台', time: '時間', ttnt: '預計到達（分鐘）' },
+          selectLineFirst: '請先選擇路綫',
+          noStations: '沒有車站',
+          toPrefix: '開往 '
+        }
+      };
+
+      // current language state
+      window.currentLang = (document.getElementById('lang') && document.getElementById('lang').value) || 'EN';
+
+      function applyLocalization(lang) {
+        const L = i18n[lang] || i18n.EN;
+        const mainTitle = document.getElementById('mainTitle');
+        const subtitle = document.getElementById('subtitle');
+        const appTitle = document.getElementById('appTitle');
+        const getBtn = document.getElementById('getBtn');
+        if (mainTitle) mainTitle.textContent = L.title;
+        if (subtitle) subtitle.textContent = L.subtitle;
+        if (appTitle) appTitle.textContent = L.appTitle;
+        if (getBtn) getBtn.textContent = L.getSchedule;
+        // update station placeholder
+        const sta = document.getElementById('sta');
+        if (sta) sta.innerHTML = `<option>${L.selectLineFirst}</option>`;
+        // update form labels
+        const lblLine = document.querySelector('label[for="line"]');
+        const lblSta = document.querySelector('label[for="sta"]');
+        const lblLang = document.querySelector('label[for="lang"]');
+        if (lblLine) lblLine.textContent = L.lineLabel || 'Line';
+        if (lblSta) lblSta.textContent = L.stationLabel || 'Station';
+        if (lblLang) lblLang.textContent = L.langLabel || 'Lang';
+      }
+
+      // apply initial localization
+      applyLocalization(window.currentLang);
+
+      // listen for lang changes to switch UI immediately
+      const langSel = document.getElementById('lang');
+      if (langSel) {
+        langSel.addEventListener('change', (e) => {
+          window.currentLang = e.target.value || 'EN';
+          applyLocalization(window.currentLang);
+        });
+      }
+      form.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const line = document.getElementById('line').value;
+        const sta = document.getElementById('sta').value;
+        const lang = document.getElementById('lang').value;
+        const metaDiv = document.getElementById('meta');
+        const upContainer = document.getElementById('upContainer');
+        const downContainer = document.getElementById('downContainer');
+        const rawDiv = document.getElementById('raw');
+        const Lf = i18n[window.currentLang] || i18n.EN;
+        metaDiv.textContent = Lf.fetching;
+        upContainer.innerHTML = Lf.loading;
+        downContainer.innerHTML = Lf.loading;
+        rawDiv.style.display = 'none';
+        try {
+          const r = await fetch(`/api/mtr/schedule?line=${encodeURIComponent(line)}&sta=${encodeURIComponent(sta)}&lang=${encodeURIComponent(lang)}`);
+          const json = await r.json();
+          renderSchedule(json, line, sta);
+        } catch (err) {
+          const Lerr = i18n[window.currentLang] || i18n.EN;
+          metaDiv.textContent = (Lerr.errorPrefix || 'Error:') + ' ' + (err.message || err);
+          upContainer.innerHTML = Lerr.error;
+          downContainer.innerHTML = Lerr.error;
+        }
+      });
+
+      // Fetch lines/stations dataset and populate selects
+      async function loadLines() {
+        try {
+          const resp = await fetch('/api/mtr/lines');
+          const data = await resp.json();
+          // expose dataset globally for other functions to use when rendering
+          window.mtrLinesData = data;
+          const lineSel = document.getElementById('line');
+          lineSel.innerHTML = '';
+          for (const code of Object.keys(data)) {
+            const opt = document.createElement('option');
+            opt.value = code;
+            opt.textContent = `${code} — ${data[code].name}`;
+            lineSel.appendChild(opt);
+          }
+          // trigger change to populate stations
+          lineSel.dispatchEvent(new Event('change'));
+
+          lineSel.addEventListener('change', () => {
+            const sel = document.getElementById('sta');
+            const selectedLine = lineSel.value;
+            sel.innerHTML = '';
+            if (!data[selectedLine]) {
+              const L = i18n[window.currentLang] || i18n.EN;
+              const o = document.createElement('option'); o.textContent = L.noStations; sel.appendChild(o); return;
+            }
+            for (const s of data[selectedLine].stations) {
+              const o = document.createElement('option');
+              o.value = s.code; o.textContent = `${s.code} — ${s.name}`;
+              sel.appendChild(o);
+            }
+          });
+        } catch (err) {
+          console.error('Failed to load lines', err);
+        }
+      }
+
+      loadLines();
+
+      function renderSchedule(json, line, sta) {
+        const metaDiv = document.getElementById('meta');
+        const upContainer = document.getElementById('upContainer');
+        const downContainer = document.getElementById('downContainer');
+        const rawDiv = document.getElementById('raw');
+
+        const L = i18n[window.currentLang] || i18n.EN;
+        // Build a human-readable summary from the JSON
+        function fmtStation(code) {
+          if (!code) return '';
+          const name = getStationName(code);
+          return name ? `${code} — ${name}` : code;
+        }
+
+        function summarizeDirection(arr) {
+          const valid = (arr || []).filter(it => { try { return String(it.valid||'').toUpperCase()==='Y'; } catch(e){return false} });
+          const count = valid.length;
+          if (count === 0) return L.noUpcoming;
+          const lines = [];
+          const max = Math.min(3, valid.length);
+          for (let i=0;i<max;i++){
+            const it = valid[i];
+            const dest = fmtStation(it.dest);
+            const time = it.time || '';
+            const plat = it.plat ? `${L.platformPrefix || 'Platform '} ${it.plat}` : '';
+            const eta = it.ttnt != null ? `${it.ttnt}${L.etaSuffix || ' mins'}` : '';
+            lines.push(`${i+1}) ${time} — ${dest}${plat ? ' — ' + plat : ''}${eta ? ' — ' + eta : ''}`);
+          }
+          return `${L.countPrefix || ''}${count} ${L.trains || 'trains'}. ${L.nextLabel || 'Next:'} \n${lines.join('\n')}`;
+        }
+
+        const metaInfo = [];
+        // meta.requested available
+        if (json.meta && json.meta.requested) {
+          const rq = json.meta.requested;
+          metaInfo.push(`${L.lineLabel || 'Line'}: ${rq.line || ''}`);
+          metaInfo.push(`${L.stationLabel || 'Station'}: ${rq.sta || ''}`);
+        }
+        // times from data
+        if (json.data) {
+          if (json.data.sys_time) metaInfo.push(`${L.sysTime || 'System time'}: ${json.data.sys_time}`);
+          if (json.data.curr_time) metaInfo.push(`${L.currTime || 'Current time'}: ${json.data.curr_time}`);
+        }
+
+        // Add high-level direction counts (no per-train details)
+        const root = json.data && json.data.data;
+        let upCount = 0;
+        let downCount = 0;
+        let sch = null;
+        if (root) {
+          const keyExact = `${line}-${sta}`.toUpperCase();
+          sch = root[keyExact] || Object.values(root)[0];
+          if (sch) {
+            upCount = (sch.UP || []).filter(it => { try { return String(it.valid||'').toUpperCase()==='Y'; } catch(e){return false} }).length;
+            downCount = (sch.DOWN || []).filter(it => { try { return String(it.valid||'').toUpperCase()==='Y'; } catch(e){return false} }).length;
+          }
+        }
+
+        const upLine = `${L.upLabel || 'UP'}: ${upCount} ${L.trains || 'trains'}`;
+        const downLine = `${L.downLabel || 'DOWN'}: ${downCount} ${L.trains || 'trains'}`;
+
+        // Render formatted HTML summary (safe escaping)
+        function escapeHtml(str) {
+          if (str == null) return '';
+          return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        const leftColumn = [];
+        metaInfo.forEach(item => {
+          const parts = String(item).split(':');
+          const label = parts.shift().trim();
+          const value = parts.join(':').trim();
+          leftColumn.push(`<div class="metaRow"><div class="metaLabel">${escapeHtml(label)}</div><div class="metaValue">${escapeHtml(value)}</div></div>`);
+        });
+
+        // compute friendly direction labels (destination-based) from the already-determined `sch`
+        const upLabelText = sch ? directionLabel(sch.UP, 'UP') : (L.upLabel || 'UP');
+        const downLabelText = sch ? directionLabel(sch.DOWN, 'DOWN') : (L.downLabel || 'DOWN');
+
+        const rightColumn = [];
+        rightColumn.push(`<div style="display:flex;gap:8px;align-items:center;justify-content:flex-end"><span style="background:#eef2ff;color:#0b3bff;padding:6px 10px;border-radius:999px;font-weight:700">${escapeHtml(String(upCount))}</span><div class="small">${escapeHtml(upLabelText)}</div></div>`);
+        rightColumn.push(`<div style="display:flex;gap:8px;align-items:center;justify-content:flex-end;margin-top:6px"><span style="background:#fff4e6;color:#ff8a00;padding:6px 10px;border-radius:999px;font-weight:700">${escapeHtml(String(downCount))}</span><div class="small">${escapeHtml(downLabelText)}</div></div>`);
+
+        const html = `
+          <div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start">
+            <div style="flex:1">${leftColumn.join('')}</div>
+            <div style="width:220px;text-align:right">${rightColumn.join('')}</div>
+          </div>
+        `;
+
+        metaDiv.innerHTML = html;
+
+        // Prepare a safe JSON view that excludes the actual schedule arrays
+        function safeJsonView(raw) {
+          const out = {};
+          if (raw.meta) out.meta = raw.meta;
+          if (raw.data) {
+            out.sys_time = raw.data.sys_time;
+            out.curr_time = raw.data.curr_time;
+            out.status = raw.data.status;
+            out.message = raw.data.message;
+          }
+          return out;
+        }
+
+        rawDiv.textContent = JSON.stringify(safeJsonView(json), null, 2);
+
+        // Determine schedule key: prefer exact line-sta key, otherwise use first key found
+        const dataRoot = json.data && json.data.data;
+        if (!dataRoot) {
+          upContainer.innerHTML = L.noData;
+          downContainer.innerHTML = L.noData;
+          rawDiv.style.display = 'block';
+          rawDiv.textContent = JSON.stringify(json, null, 2);
+          return;
+        }
+
+        const keyExact = `${line}-${sta}`.toUpperCase();
+        let schedule = dataRoot[keyExact];
+        if (!schedule) {
+          const keys = Object.keys(dataRoot);
+          if (keys.length === 1) schedule = dataRoot[keys[0]];
+        }
+
+        if (!schedule) {
+          upContainer.innerHTML = L.noScheduleCombination;
+          downContainer.innerHTML = L.noScheduleCombination;
+          rawDiv.style.display = 'block';
+          rawDiv.textContent = JSON.stringify(json, null, 2);
+          return;
+        }
+
+        // Helper to get station name from code across all lines
+        function getStationName(code) {
+          if (!window.mtrLinesData) return null;
+          const upper = (code || '').toUpperCase();
+          for (const line of Object.values(window.mtrLinesData)) {
+            for (const s of line.stations) {
+              if (s.code && s.code.toUpperCase() === upper) return s.name;
+            }
+          }
+          return null;
+        }
+
+        // Helper to build table
+          function buildTable(arr) {
+          if (!arr || arr.length === 0) return L.noUpcoming;
+          const table = document.createElement('table');
+          table.style.borderCollapse = 'collapse';
+          table.style.width = '100%';
+          const header = table.createTHead();
+          const hdrRow = header.insertRow();
+          const cols = ['seq','dest','plat','time','ttnt'];
+          const colLabels = L.colLabels || { seq: 'Seq', dest: 'Destination', plat: 'Platform', time: 'Time', ttnt: 'ETA (mins)' };
+          cols.forEach(c => {
+            const th = document.createElement('th');
+            th.textContent = colLabels[c] || c.toUpperCase();
+            hdrRow.appendChild(th);
+          });
+          const body = table.createTBody();
+          // Only include records marked as valid === 'Y'
+          const filtered = (arr || []).filter(it => {
+            try { return (String(it.valid || '').toUpperCase() === 'Y'); } catch(e) { return false; }
+          });
+
+          filtered.forEach(item => {
+            const r = body.insertRow();
+            // highlight if train arriving very soon (ttnt numeric <=2)
+            try {
+              const t = Number(item.ttnt);
+              if (!Number.isNaN(t) && t <= 2) r.classList.add('soon');
+            } catch(e){}
+            cols.forEach(c => {
+              const cell = r.insertCell();
+              if (c === 'dest') {
+                const code = item[c] != null ? item[c] : '';
+                const name = getStationName(code);
+                cell.textContent = name ? `${code} — ${name}` : code;
+              } else {
+                cell.textContent = item[c] != null ? item[c] : '';
+              }
+              cell.style.border = '1px solid #ddd';
+              cell.style.padding = '6px';
+              cell.style.textAlign = 'center';
+            });
+          });
+          return table;
+        }
+
+        // Render UP and DOWN
+        upContainer.innerHTML = '';
+        // determine friendly direction labels based on first destination or endpoints
+        const upHeader = document.getElementById('upHeader');
+        const downHeader = document.getElementById('downHeader');
+
+        function directionLabel(arr, fallbackKey) {
+          const L = i18n[window.currentLang] || i18n.EN;
+          const filtered = (arr || []).filter(it => { try { return String(it.valid||'').toUpperCase() === 'Y'; } catch(e){return false} });
+          const firstWithDest = filtered.find(it => it && it.dest);
+          if (firstWithDest && firstWithDest.dest) {
+            const name = getStationName(firstWithDest.dest);
+            return name ? `${L.toPrefix}${name}` : `${L.toPrefix}${firstWithDest.dest}`;
+          }
+          // fallback: use line endpoints from dataset if available
+          try {
+            const lineObj = window.mtrLinesData && window.mtrLinesData[(line||'').toUpperCase()];
+            if (lineObj && Array.isArray(lineObj.stations) && lineObj.stations.length>0) {
+              if (fallbackKey === 'UP') {
+                const last = lineObj.stations[lineObj.stations.length-1];
+                return last ? `${L.toPrefix}${last.name || last.code}` : 'UP';
+              } else {
+                const first = lineObj.stations[0];
+                return first ? `${L.toPrefix}${first.name || first.code}` : 'DOWN';
+              }
+            }
+          } catch(e) {}
+          return fallbackKey;
+        }
+
+        upHeader.textContent = directionLabel(schedule.UP, 'UP');
+        downHeader.textContent = directionLabel(schedule.DOWN, 'DOWN');
+
+        upContainer.innerHTML = '';
+        const up = buildTable(schedule.UP);
+        if (typeof up === 'string') upContainer.textContent = up; else upContainer.appendChild(up);
+
+        downContainer.innerHTML = '';
+        const down = buildTable(schedule.DOWN);
+        if (typeof down === 'string') downContainer.textContent = down; else downContainer.appendChild(down);
+
+        rawDiv.style.display = 'none';
+      }
+    </script>
+  </body>
+</html>
