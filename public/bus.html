@@ -402,24 +402,24 @@
               <div id="routeDropdown" class="route-dropdown"></div>
             </div>
           </div>
-          <div id="routeDetailsSection" style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;">
+          <!-- <div id="routeDetailsSection" style="margin-top: 12px; padding: 12px; background: linear-gradient(135deg, #f0f9ff 0%, #f0fdf4 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;"> -->
             <!-- Direction Selector -->
-            <div style="margin-bottom: 12px;">
+            <!-- <div style="margin-bottom: 12px;">
               <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Direction</div>
               <div id="directionButtonsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-            </div>
+            </div> -->
             <!-- Service Type Selector -->
-            <div style="margin-bottom: 12px;">
+            <!-- <div style="margin-bottom: 12px;">
               <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;">Service Type</div>
               <div id="serviceTypeButtonsContainer" style="display: flex; gap: 8px; flex-wrap: wrap;"></div>
-            </div>
+            </div> -->
             <!-- Route Info (Origin - Destination) -->
-            <div style="padding: 8px 0; border-top: 1px solid rgba(15, 23, 42, 0.1);">
+            <!-- <div style="padding: 8px 0; border-top: 1px solid rgba(15, 23, 42, 0.1);">
               <div style="font-size: 12px; color: #0f172a; font-weight: 500;">
                 <span id="routeOrigin"></span> <span style="color: #0ea5a4; font-weight: 600;">→</span> <span id="routeDestination"></span>
               </div>
-            </div>
-          </div>
+            </div> -->
+          <!-- </div> -->
           <div class="row">
             <div>
               <label for="stop">Stop</label>
@@ -430,7 +430,7 @@
           </div>
           
           <!-- Current Selection Display -->
-          <div id="currentSelectionBox" style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #dbeafe 0%, #dcfce7 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;">
+          <!-- <div id="currentSelectionBox" style="margin-top: 16px; padding: 12px; background: linear-gradient(135deg, #dbeafe 0%, #dcfce7 100%); border-left: 4px solid #0ea5a4; border-radius: 6px; display: none;">
             <div style="font-size: 11px; color: #0d7377; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px;"><strong>Current Selection</strong></div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; font-size: 13px;">
               <div><span style="color: #6b7280;">Operator:</span> <strong id="selOp">—</strong></div>
@@ -439,7 +439,7 @@
               <div><span style="color: #6b7280;">Service Type:</span> <strong id="selSvc">—</strong></div>
               <div><span style="color: #6b7280;">Stop:</span> <strong id="selStop">—</strong></div>
             </div>
-          </div>
+          </div> -->
           
           <div style="margin-top: 16px;">
             <button id="getBtn" type="submit">
@@ -451,7 +451,7 @@
 
       <div id="meta" class="card" style="display: none;"></div>
 
-      <div id="debug" class="card" style="display: none; background: #fef3c7; border-left: 4px solid #f59e0b; margin-top: 10px;">
+      <!-- <div id="debug" class="card" style="display: none; background: #fef3c7; border-left: 4px solid #f59e0b; margin-top: 10px;">
         <h3 style="color: #92400e; margin-top: 0;">
           <i class="fas fa-bug"></i> Debug Info
         </h3>
@@ -468,7 +468,7 @@
             <strong>Status:</strong> <span id="debugStatus" style="color: #0891b2;"></span>
           </div>
         </div>
-      </div>
+      </div> -->
 
       <div class="results">
         <div class="card">
@@ -518,12 +518,12 @@
         document.getElementById('selSvc').textContent = currentServiceType || '—';
         document.getElementById('selStop').textContent = stopLabel || '—';
         
-        const selBox = document.getElementById('currentSelectionBox');
-        if (operator && route && currentDirection && currentServiceType && stop) {
-          selBox.style.display = 'block';
-        } else {
-          selBox.style.display = 'none';
-        }
+        // const selBox = document.getElementById('currentSelectionBox');
+        // if (operator && route && currentDirection && currentServiceType && stop) {
+        //   selBox.style.display = 'block';
+        // } else {
+        //   selBox.style.display = 'none';
+        // }
       }
 
       // Format route label with code, origin, and destination
@@ -630,7 +630,7 @@
         const routeEntries = allRoutes[operator].filter(r => (r.route || r.code || '').toUpperCase() === route.toUpperCase());
         
         if (routeEntries.length === 0) {
-          document.getElementById('routeDetailsSection').style.display = 'none';
+          //document.getElementById('routeDetailsSection').style.display = 'none';
           return;
         }
 
@@ -665,8 +665,8 @@
         if (!currentServiceType) currentServiceType = defaultServiceType;
 
         // Create direction buttons
-        const directionButtonsContainer = document.getElementById('directionButtonsContainer');
-        directionButtonsContainer.innerHTML = '';
+        // const directionButtonsContainer = document.getElementById('directionButtonsContainer');
+        // directionButtonsContainer.innerHTML = '';
         
         Array.from(directionMap.keys()).sort().forEach(direction => {
           const button = document.createElement('button');
@@ -679,16 +679,16 @@
             e.preventDefault();
             currentDirection = direction.toLowerCase();
             updateRouteDisplay(route, routeEntries);
-            updateSelectionDisplay();
+            //updateSelectionDisplay();
             reloadStops(route);
           });
           
-          directionButtonsContainer.appendChild(button);
+          //directionButtonsContainer.appendChild(button);
         });
 
         // Create service type buttons
-        const serviceTypeButtonsContainer = document.getElementById('serviceTypeButtonsContainer');
-        serviceTypeButtonsContainer.innerHTML = '';
+        // const serviceTypeButtonsContainer = document.getElementById('serviceTypeButtonsContainer');
+        // serviceTypeButtonsContainer.innerHTML = '';
         
         Array.from(serviceTypeMap.keys()).sort().forEach(serviceType => {
           const button = document.createElement('button');
@@ -701,16 +701,16 @@
             e.preventDefault();
             currentServiceType = serviceType;
             updateRouteDisplay(route, routeEntries);
-            updateSelectionDisplay();
+            //updateSelectionDisplay();
             reloadStops(route);
           });
           
-          serviceTypeButtonsContainer.appendChild(button);
+          //serviceTypeButtonsContainer.appendChild(button);
         });
 
         // Display initial route info
         updateRouteDisplay(route, routeEntries);
-        document.getElementById('routeDetailsSection').style.display = 'block';
+        //document.getElementById('routeDetailsSection').style.display = 'block';
       }
 
       // Update the origin/destination display and re-highlight buttons
@@ -730,8 +730,8 @@
         const dest = currentLanguage === 'TC' ? selectedEntry.dest_tc || selectedEntry.dest_en : selectedEntry.dest_en || '';
 
         // Update route info display
-        document.getElementById('routeOrigin').textContent = origin;
-        document.getElementById('routeDestination').textContent = dest;
+        // document.getElementById('routeOrigin').textContent = origin;
+        // document.getElementById('routeDestination').textContent = dest;
 
         // Update button active states
         document.querySelectorAll('.selector-button').forEach(button => {
@@ -766,10 +766,10 @@
         stopInput.innerHTML = '<option value="">Select a stop (select route first)</option>';
         routeDropdown.innerHTML = '';
         routeDropdown.classList.remove('show');
-        document.getElementById('routeDetailsSection').style.display = 'none';
+        //document.getElementById('routeDetailsSection').style.display = 'none';
         currentDirection = '';
         currentServiceType = '';
-        updateSelectionDisplay();
+        //      updateSelectionDisplay();
 
         if (!operator) return;
 
@@ -799,7 +799,7 @@
         currentLanguage = e.target.value;
         
         // Update current selection display with new language
-        updateSelectionDisplay();
+        //updateSelectionDisplay();
         
         // Update route display if route is selected
         if (currentRoute && currentOperator && allRoutes[currentOperator]) {
@@ -893,7 +893,7 @@
 
       // Handle stop change - trigger API call
       stopInput.addEventListener('change', (e) => {
-        updateSelectionDisplay();
+        //updateSelectionDisplay();
         if (e.target.value && currentRoute) {
           form.dispatchEvent(new Event('submit'));
         }
@@ -909,9 +909,9 @@
       async function loadStopsForRouteAndDirection(route, direction, serviceType) {
         const operator = operatorSel.value;
         const stopSelect = document.getElementById('stop');
-        const debugDiv = document.getElementById('debug');
-        const debugUrl = document.getElementById('debugUrl');
-        const debugStatus = document.getElementById('debugStatus');
+        // const debugDiv = document.getElementById('debug');
+        // const debugUrl = document.getElementById('debugUrl');
+        // const debugStatus = document.getElementById('debugStatus');
 
         if (!operator) {
           alert('Please select an operator first');
@@ -940,9 +940,9 @@
             const proxyUrl = `/api/bus/route-stop?route=${encodeURIComponent(route)}&operator=${encodeURIComponent(operator)}&direction=${encodeURIComponent(direction)}&service_type=${encodeURIComponent(serviceType)}`;
             
             // Display debug info
-            debugDiv.style.display = 'block';
-            debugUrl.innerHTML = `<strong>External API:</strong><br/>${externalUrl}<br/><br/><strong>Proxy URL:</strong><br/>${proxyUrl}`;
-            debugStatus.textContent = 'Loading...';
+            // debugDiv.style.display = 'block';
+            // debugUrl.innerHTML = `<strong>External API:</strong><br/>${externalUrl}<br/><br/><strong>Proxy URL:</strong><br/>${proxyUrl}`;
+            // debugStatus.textContent = 'Loading...';
             
             const response = await fetch(proxyUrl);
             const data = await response.json();
@@ -957,7 +957,7 @@
                 throw new Error(`<strong>No stops found</strong> for route ${route} in ${direction} direction with service type ${serviceType}<br/><strong>URL:</strong> <code>${externalUrl}</code>`);
               }
               routeStopsMap[cacheKey] = stopsData;
-              debugStatus.textContent = `Success - ${stopsData.length} stops loaded`;
+              //debugStatus.textContent = `Success - ${stopsData.length} stops loaded`;
             } else {
               throw new Error(`<strong>No data returned from API</strong><br/><strong>URL:</strong> <code>${externalUrl}</code>`);
             }
@@ -972,7 +972,7 @@
           stopSelect.innerHTML = `<option value="">Error: Loading stops...</option>`;
           const resultContainer = document.getElementById('resultContainer');
           resultContainer.innerHTML = `<div class="error-message">${err.message}</div>`;
-          debugStatus.textContent = `Error: ${err.message.replace(/<[^>]*>/g, '')}`;
+          //debugStatus.textContent = `Error: ${err.message.replace(/<[^>]*>/g, '')}`;
         }
       }
 
@@ -1117,57 +1117,57 @@
         const resultContainer = document.getElementById('resultContainer');
         const resultHeader = document.getElementById('resultHeader');
         const rawDiv = document.getElementById('raw');
-        const debugDiv = document.getElementById('debug');
-        const debugUrl = document.getElementById('debugUrl');
-        const debugParams = document.getElementById('debugParams');
-        const debugStatus = document.getElementById('debugStatus');
+        // const debugDiv = document.getElementById('debug');
+        // const debugUrl = document.getElementById('debugUrl');
+        // const debugParams = document.getElementById('debugParams');
+        // const debugStatus = document.getElementById('debugStatus');
 
         // Show debug info first and scroll to it
-        debugDiv.style.display = 'block';
-        metaDiv.textContent = 'Loading...';
-        metaDiv.style.display = 'block';
+        //debugDiv.style.display = 'block';
+        // metaDiv.textContent = 'Loading...';
+        // metaDiv.style.display = 'block';
         resultContainer.innerHTML = '<div class="loading"><div class="spinner"></div> Fetching data...</div>';
         rawDiv.style.display = 'none';
         
         // Scroll to debug info so user can see the API call
         setTimeout(() => {
-          debugDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          //debugDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 50);
 
         try {
           const apiOperator = operatorApiMap[operator];
           const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/eta/${encodeURIComponent(stop)}/${encodeURIComponent(route)}/${encodeURIComponent(currentServiceType)}`;
           const url = `/api/bus/eta?stop_id=${encodeURIComponent(stop)}&route=${encodeURIComponent(route)}&service_type=${encodeURIComponent(currentServiceType)}&operator=${encodeURIComponent(operator)}`;
-          const headerText = `ETA for Route ${route} at Stop ${stop} (Service Type ${currentServiceType})`;
+          const headerText = `ETA for Route ${route}`;//at Stop ${stop} (Service Type ${currentServiceType})
           const params = { stop_id: stop, route, service_type: currentServiceType, operator };
 
           // Display debug info with clickable API links
-          debugUrl.innerHTML = `
-            <div hidden style="margin-bottom: 12px;">
-              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API</strong></div>
-              <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #0369a1;">
-                <a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none;">
-                  ${externalUrl}
-                </a>
-                <span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline;">open</a>)</span>
-              </div>
-            </div>
-            <div>
-              <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>Proxy URL</strong></div>
-              <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #10b981;">
-                ${window.location.origin}${url}
-              </div>
-            </div>
-          `;
-          debugParams.innerHTML = `<strong>Parameters:</strong><br/><pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(params, null, 2)}</pre>`;
-          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #f59e0b;">Calling API...</span>`;
+        //   debugUrl.innerHTML = `
+        //     <div hidden style="margin-bottom: 12px;">
+        //       <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API</strong></div>
+        //       <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #0369a1;">
+        //         <a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none;">
+        //           ${externalUrl}
+        //         </a>
+        //         <span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline;">open</a>)</span>
+        //       </div>
+        //     </div>
+        //     <div>
+        //       <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>Proxy URL</strong></div>
+        //       <div style="font-family: monospace; font-size: 12px; background: white; padding: 10px; border-radius: 4px; word-break: break-all; color: #0369a1; border-left: 3px solid #10b981;">
+        //         ${window.location.origin}${url}
+        //       </div>
+        //     </div>
+        //   `;
+        //   debugParams.innerHTML = `<strong>Parameters:</strong><br/><pre style="background: white; padding: 10px; border-radius: 4px; overflow-x: auto;">${JSON.stringify(params, null, 2)}</pre>`;
+        //   debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #f59e0b;">Calling API...</span>`;
 
           const response = await fetch(url);
           const data = await response.json();
 
           // Update debug status with response details
           const itemCount = data.data ? data.data.length : 0;
-          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #10b981;">${response.status} ${response.statusText}</span> - <strong>${itemCount}</strong> ${itemCount === 1 ? 'item' : 'items'} received`;
+          //debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #10b981;">${response.status} ${response.statusText}</span> - <strong>${itemCount}</strong> ${itemCount === 1 ? 'item' : 'items'} received`;
 
           if (!response.ok) {
             resultContainer.innerHTML = `<div class="error-message"><strong>Error:</strong> ${data.error || 'Failed to fetch data'}</div>`;
@@ -1186,7 +1186,7 @@
         } catch (err) {
           resultContainer.innerHTML = `<div class="error-message"><strong>Error:</strong> ${err.message}</div>`;
           metaDiv.textContent = err.message;
-          debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #dc2626;">Error: ${err.message}</span>`;
+          //debugStatus.innerHTML = `<strong>Status:</strong> <span style="color: #dc2626;">Error: ${err.message}</span>`;
         }
       });
 
@@ -1200,7 +1200,7 @@
         document.getElementById('resultTitle').textContent = headerText;
 
         // Show metadata
-        metaDiv.textContent = `Timestamp: ${json.meta?.proxiedAt || 'N/A'}`;
+        //metaDiv.textContent = `Timestamp: ${json.meta?.proxiedAt || 'N/A'}`;
 
         // ETABus API returns data structure with nested data array
         let etaArray = [];
@@ -1221,22 +1221,22 @@
 
         // Build ETA grid table
         let html = '<div style="margin-bottom: 16px; padding: 12px; background: #f0f9ff; border-left: 4px solid #0ea5a4; border-radius: 6px;">';
-        html += '<div style="font-size: 11px; color: #0d7377; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API Called</strong></div>';
-        if (json.meta?.requested) {
-          const stop = json.meta.requested.stop_id;
-          const route = json.meta.requested.route;
-          const serviceType = json.meta.requested.service_type;
-          const operator = json.meta.requested.operator;
-          const apiOperator = operatorApiMap[operator];
-          const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/eta/${stop}/${route}/${serviceType}`;
-          html += `<div style="font-family: monospace; font-size: 12px; background: white; padding: 8px; border-radius: 4px; word-break: break-all; color: #0369a1;">`;
-          html += `<a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none; cursor: pointer;">`;
-          html += `${externalUrl}`;
-          html += `</a>`;
-          html += `<span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline; cursor: pointer;">open</a>)</span>`;
-          html += `</div>`;
-        }
-        html += '</div>';
+        //html += '<div style="font-size: 11px; color: #0d7377; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px;"><strong>External API Called</strong></div>';
+        // if (json.meta?.requested) {
+        //   const stop = json.meta.requested.stop_id;
+        //   const route = json.meta.requested.route;
+        //   const serviceType = json.meta.requested.service_type;
+        //   const operator = json.meta.requested.operator;
+        //   const apiOperator = operatorApiMap[operator];
+        //   const externalUrl = `https://data.etabus.gov.hk/v1/transport/${apiOperator}/eta/${stop}/${route}/${serviceType}`;
+        //   html += `<div style="font-family: monospace; font-size: 12px; background: white; padding: 8px; border-radius: 4px; word-break: break-all; color: #0369a1;">`;
+        //   html += `<a href="${externalUrl}" target="_blank" style="color: #0369a1; text-decoration: none; cursor: pointer;">`;
+        //   html += `${externalUrl}`;
+        //   html += `</a>`;
+        //   html += `<span style="margin-left: 8px; color: #6b7280;">(<a href="${externalUrl}" target="_blank" style="color: #6b7280; text-decoration: underline; cursor: pointer;">open</a>)</span>`;
+        //   html += `</div>`;
+        // }
+        // html += '</div>';
 
         html += '<table style="width: 100%; border-collapse: collapse;">';
         html += '<thead style="background: #f3f4f6; border-bottom: 2px solid #e5e7eb;">';
@@ -1299,8 +1299,8 @@
         html += '</table>';
 
         resultContainer.innerHTML = html;
-        rawDiv.innerHTML = JSON.stringify(json.data, null, 2);
-        rawDiv.style.display = 'block';
+        // rawDiv.innerHTML = JSON.stringify(json.data, null, 2);
+        // rawDiv.style.display = 'block';
       }
     </script>
   </body>
